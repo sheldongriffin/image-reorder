@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationTitle>Image Reorder</ApplicationTitle>
+    <Product>Image Reorder</Product>
+    <Description>Reorder images in a folder by dragging thumbnails, then rename them to IMG_xxxx.</Description>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ImageReorder.Tests" />
+    <Compile Remove="ImageReorder.Tests/**" />
+    <None Remove="ImageReorder.Tests/**" />
+    <Page Remove="ImageReorder.Tests/**" />
+    <EmbeddedResource Remove="ImageReorder.Tests/**" />
+  </ItemGroup>
+
+</Project>

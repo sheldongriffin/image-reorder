@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ImageReorder.csproj" />
+  <Project Path="ImageReorder.Tests/ImageReorder.Tests.csproj" />
+</Solution>

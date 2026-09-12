@@ -1,0 +1,190 @@
+﻿<Window x:Class="ImageReorder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:behaviors="clr-namespace:ImageReorder.Behaviors"
+        xmlns:viewModels="clr-namespace:ImageReorder.ViewModels"
+        Title="Image Reorder"
+        Height="780"
+        Width="1180"
+        MinHeight="560"
+        MinWidth="860"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI Variable, Segoe UI"
+        FontSize="13"
+        Background="{StaticResource WindowBackgroundBrush}"
+        Foreground="{StaticResource TextPrimaryBrush}"
+        AllowDrop="True"
+        Drop="OnWindowDrop"
+        DragOver="OnWindowDragOver"
+        DragLeave="OnWindowDragLeave">
+    <Window.DataContext>
+        <viewModels:MainViewModel />
+    </Window.DataContext>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open Folder…" Command="{Binding OpenFolderCommand}" InputGestureText="Ctrl+O" />
+                <Separator />
+                <MenuItem Header="_Close Folder" Command="{Binding ClearFolderCommand}" />
+                <Separator />
+                <MenuItem Header="E_xit" Click="OnExitClick" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="Open _Log File" Click="OnOpenLogFileClick" />
+                <MenuItem Header="Open Log _Folder" Click="OnOpenLogFolderClick" />
+            </MenuItem>
+        </Menu>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusText}" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <Border DockPanel.Dock="Top"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrushSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock FontSize="20"
+                               FontWeight="SemiBold"
+                               Text="{Binding FolderName}" />
+                    <TextBlock Margin="0,4,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Text="{Binding HeaderSubtitle}" />
+                    <TextBlock Margin="0,2,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               FontSize="12"
+                               Text="{Binding FolderPath}"
+                               Visibility="{Binding HasFolder, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Button Content="Open folder"
+                            Style="{StaticResource ToolbarButtonStyle}"
+                            Command="{Binding OpenFolderCommand}"
+                            Margin="0,0,8,0" />
+                    <Button Content="Apply IMG_xxxx names"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{Binding ApplyNamesCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Margin="16">
+            <Border x:Name="DropHint"
+                    CornerRadius="16"
+                    BorderBrush="{StaticResource AccentBrush}"
+                    BorderThickness="2"
+                    Background="#140B6BCB"
+                    Visibility="Collapsed"
+                    IsHitTestVisible="False"
+                    Panel.ZIndex="10" />
+
+            <Grid Visibility="{Binding HasFolder, Converter={StaticResource InverseBoolToVis}}">
+                <Rectangle RadiusX="18"
+                           RadiusY="18"
+                           Fill="{StaticResource DropZoneBrush}"
+                           Stroke="{StaticResource AccentBrush}"
+                           StrokeThickness="2"
+                           StrokeDashArray="8 5" />
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Viewbox Width="56" Height="56" Margin="0,0,0,16">
+                        <Canvas Width="24" Height="24">
+                            <Path Fill="{StaticResource AccentBrush}"
+                                  Data="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+                        </Canvas>
+                    </Viewbox>
+                    <TextBlock FontSize="22"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Text="Drop a folder of images" />
+                    <TextBlock Margin="0,8,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               Text="You can also use File → Open Folder. Then drag thumbnails into the order you want." />
+                </StackPanel>
+            </Grid>
+
+            <ScrollViewer Visibility="{Binding HasFolder, Converter={StaticResource BoolToVis}}"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Background="Transparent"
+                          Padding="4">
+                <ItemsControl x:Name="ThumbnailList"
+                              ItemsSource="{Binding Images}"
+                              behaviors:ThumbnailReorderBehavior.IsEnabled="True"
+                              MouseDoubleClick="OnThumbnailDoubleClick">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type viewModels:ImageEntry}">
+                            <Border Style="{StaticResource ThumbnailCardStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="132" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Border CornerRadius="12,12,0,0" ClipToBounds="True" Background="#EEF1F6">
+                                        <Grid>
+                                            <TextBlock Text="No preview"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Visibility="{Binding Thumbnail, Converter={StaticResource NullToVisible}}" />
+                                            <Image Source="{Binding Thumbnail}"
+                                                   Stretch="UniformToFill"
+                                                   Visibility="{Binding Thumbnail, Converter={StaticResource NullToCollapsed}}" />
+                                            <Border Width="44"
+                                                    Height="24"
+                                                    Margin="8"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    Background="#E60B6BCB"
+                                                    CornerRadius="6">
+                                                <TextBlock Text="{Binding BadgeText}"
+                                                           Foreground="White"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="11"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <StackPanel Grid.Row="1" Margin="10,8,10,10">
+                                        <TextBlock Text="{Binding FileName}"
+                                                   FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding FileName}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="12">
+                                            <Run Text="Will be" />
+                                            <Run Text="{Binding PlannedName, Mode=OneWay}" FontWeight="SemiBold" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</Window>
